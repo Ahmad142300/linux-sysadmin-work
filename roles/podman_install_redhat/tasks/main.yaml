@@ -1,0 +1,19 @@
+- name: check podman isntallation on RedHat
+  ansible.builtin.command: podman --version
+  register: podman_check_redhat
+  failed_when: false # prevent marking as failed when command is not found
+  changed_when: false # prevent reporting change since we are just checkin
+
+- name: Report podman status on RedHat
+  ansible.builtin.debug:
+    msg: "Podman is installed {{podman_check_redhat.stdout}}"
+  when:
+    - podman_check_redhat.rc is defined and podman_check_redhat.rc == 0
+
+- name: Installing podman for RedHat
+  ansible.builtin.dnf: # handels -y for modules install
+    name: podman
+    state: present
+    update_cache: yes 
+  when: 
+    - podman_check_redhat.rc is defined and podman_check_redhat.rc != 0

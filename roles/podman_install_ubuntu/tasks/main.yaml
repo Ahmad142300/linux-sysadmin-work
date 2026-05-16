@@ -1,0 +1,20 @@
+- name: check podman isntallation on Ubuntu
+  ansible.builtin.command: podman --version
+  register: podman_check_ubuntu
+  failed_when: false # prevent marking as failed when command is not found
+  changed_when: false # prevent reporting change since we are just checking
+
+- name: Report podman status on Ubuntu
+  ansible.builtin.debug:
+    msg: "Podman is installed {{podman_check_ubuntu.stdout}}"
+  when:
+    - podman_check_ubuntu.rc is defined and podman_check_ubuntu.rc == 0
+    
+- name: Installing podman for Ubuntu
+  ansible.builtin.apt: # handels -y for modules install
+    name: podman
+    state: present
+    update_cache: yes
+  when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    - podman_check_ubuntu.rc is defined and podman_check_ubuntu.rc != 0

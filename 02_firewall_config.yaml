@@ -1,0 +1,51 @@
+- name: Configure Firewall for K3s Cluster
+  hosts: servers  # This targets RedHat, Ubuntu, and openSUSE
+  become: true
+  tasks:
+    - name: allow traffic on port 6443/tcp and 8472/udp for RedHat and openSUSE
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        immediate: true # Apply the change immediately (--reload)
+        state: enabled
+      loop:
+        - 6443/tcp
+        - 8472/udp
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Suse"
+
+    - name: allow traffic from 10.42.0.0/16 (pods) and 10.43.0.0/16 (services) for RedHat and openSUSE
+      ansible.posix.firewalld:
+        source: '{{ item }}' 
+        zone: trusted
+        permanent: true
+        immediate: true
+        state: enabled 
+      loop:
+        - 10.42.0.0/16
+        - 10.43.0.0/16
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Suse"
+
+
+    - name: allow traffic on port 6443/tcp for Ubuntu
+      ansible.builtin.ufw:
+        rule: allow
+        port: 6443
+        proto: tcp
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: allow traffic on port 8472/udp for Ubuntu
+      ansible.builtin.ufw:
+        rule: allow
+        port: 8472
+        proto: udp
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: allow traffic from 10.42.0.0/16 and 10.43.0.0/16 for Ubuntu
+      ansible.builtin.ufw:
+        rule: allow
+        src: '{{ item }}'
+        dest: any
+      loop:
+        - 10.42.0.0/16
+        - 10.43.0.0/16
+      when: ansible_facts['distribution'] == "Ubuntu"

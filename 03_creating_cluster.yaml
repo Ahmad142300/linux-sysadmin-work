@@ -1,0 +1,45 @@
+- name: Join Worker Nodes to RedHat Leader
+  hosts: managed_nodes  # This should be your Ubuntu and openSUSE group in 'hosts'
+  become: true
+  vars:
+    leader_ip: "100.87.184.17" 
+    k3s_token: "K10f1682f3f59e0a3deb5dee07dff0e638c398baa8cd76c781c4b3f012e1e00c5da::server:4b621d0cd30af7ba8008bac5885743f0"
+
+  tasks:
+    - name: Disable firewalld on openSUSE
+      ansible.builtin.systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+      when: ansible_os_family == "Suse"
+
+    - name: Install SELinux dependencies for openSUSE
+      community.general.zypper:
+        name: 
+          - container-selinux
+          - https://rpm.rancher.io/k3s/stable/common/microos/noarch/k3s-selinux-1.6-1.sle.noarch.rpm
+        state: present
+        disable_gpg_check: yes
+      when: ansible_os_family == "Suse"
+
+
+    - name: Check if K3s is already installed
+      ansible.builtin.command: which k3s
+      register: k3s_check
+      failed_when: false
+      changed_when: false
+
+    - name: Run K3s Agent Install Script
+      ansible.builtin.shell: |
+        curl -sfL https://get.k3s.io | K3S_URL=https://{{ leader_ip }}:6443 K3S_TOKEN={{ k3s_token }} sh -
+      when: k3s_check.rc != 0
+      environment:
+        # Some systems need the proxy or PATH defined, but usually not needed for K3s
+        K3S_URL: "https://{{ leader_ip }}:6443"
+        K3S_TOKEN: "{{ k3s_token }}"
+
+    - name: Ensure K3s Agent service is started and enabled
+      ansible.builtin.systemd:
+        name: k3s-agent
+        state: started
+        enabled: yes

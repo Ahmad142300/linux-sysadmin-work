@@ -1,0 +1,39 @@
+- name: Distribute Images to K3s Cluster
+  hosts: servers
+  become: true
+  vars:
+    frontend_image: "chatbot-frontend-v5.tar"
+    backend_image: "chatbot-backend-v8.tar"
+    tmp_path: "/home/regulu/.ansible/tmp"
+
+  tasks:
+    - name: Ensure target directory exists
+      ansible.builtin.file:
+        path: "{{ tmp_path }}"
+        state: directory
+        owner: regulu
+        group: regulu
+        mode: '0755'
+
+    - name: Copy images to nodes
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ tmp_path }}/{{ item }}"
+      loop:
+        - "{{ backend_image }}"
+        - "{{ frontend_image }}"
+
+    - name: Import images into K3s containerd
+      ansible.builtin.shell: |
+        /usr/local/bin/k3s ctr images import {{ tmp_path }}/{{ item }}
+      loop:
+        - "{{ backend_image }}"
+        - "{{ frontend_image }}"
+
+    - name: Cleanup tar files from tmp directory
+      ansible.builtin.file:
+        path: "{{ tmp_path }}/{{ item }}"
+        state: absent
+      loop:
+        - "{{ backend_image }}"
+        - "{{ frontend_image }}"

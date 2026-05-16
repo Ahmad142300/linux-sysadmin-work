@@ -1,0 +1,19 @@
+    - name: check if podman is installed on Windows
+      ansible.windows.win_shell: podman --version
+      register: podman_check_windows
+      failed_when: false
+      changed_when: false
+
+    - name: Report podman status on Windows
+      ansible.builtin.debug:
+        msg: "Podman is installed: {{ podman_check_windows.stdout }}"
+      when: 
+        - podman_check_windows.rc is defined and podman_check_windows.rc == 0
+
+    - name: Install Podman via Chocolatey
+      # This is the standard Windows module for package management
+      chocolatey.chocolatey.win_chocolatey:
+        name: podman-cli
+        state: present
+      when: 
+        - podman_check_windows.rc is defined and podman_check_windows.rc != 0

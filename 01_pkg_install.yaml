@@ -1,0 +1,16 @@
+- name: install or check podman installation on Linux servers
+  hosts: servers
+  gather_facts: true
+  become: true
+
+  roles: 
+  - { role: podman_install_ubuntu, when: "ansible_facts['distribution'] == 'Ubuntu'" }
+  - { role: podman_install_suse, when: "ansible_facts['os_family'] == 'Suse'" }
+  - { role: podman_install_redhat, when: "ansible_facts['os_family'] == 'RedHat'" }
+
+
+- name: installing podman for windows servers
+  hosts: windows
+  gather_facts: true
+  roles:
+  - { role: podman_install_windows, when: "ansible_facts['os_family'] == 'Windows'" }

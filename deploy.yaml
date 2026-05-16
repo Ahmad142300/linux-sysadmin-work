@@ -1,0 +1,10 @@
+- name: "Start of push playbook"
+  hosts: servers
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: "Copy somefile over at {{ansible_date_time.iso8601_basic_short }}"
+      copy:
+        src: /home/ahmad/ansible-playground/somefile
+        dest: /tmp/somefile.txt

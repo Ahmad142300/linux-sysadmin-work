@@ -1,0 +1,43 @@
+- name: install gpg
+  ansible.builtin.apt:
+    name: gpg
+    state: present
+    update_cache: yes
+
+- name: Create a directory for the keyring
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download the GPG key and save it to the keyring directory
+  ansible.builtin.get_url:
+    url: https://apt.grafana.com/gpg-full.key
+    dest: /etc/apt/keyrings/grafana.asc
+    mode: '0644'
+
+
+- name: Add the Grafana APT repository to the sources list
+  ansible.builtin.shell: echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | tee /etc/apt/sources.list.d/grafana.list
+
+- name: Update repositories cache and install alloy
+  ansible.builtin.apt:
+    name: alloy
+    update_cache: yes
+
+- name: start alloy service on Linux servers
+  ansible.builtin.systemd:
+    name: alloy
+    state: started
+    enabled: yes
+
+- name: copy config file
+  ansible.builtin.copy:
+    src: config.alloy
+    dest: /etc/alloy/config.alloy
+    mode: '644'
+
+- name: reload alloy service on Linux servers
+  ansible.builtin.systemd:
+    name: alloy
+    state: reloaded

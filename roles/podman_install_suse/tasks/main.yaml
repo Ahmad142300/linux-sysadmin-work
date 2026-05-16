@@ -1,0 +1,19 @@
+- name: check podman isntallation on OpenSUSE
+  ansible.builtin.command: podman --version
+  register: podman_check_OpenSUSE
+  failed_when: false # prevent marking as failed when command is not found
+  changed_when: false # prevent reporting change since we are just checking
+
+- name: Report podman status on OpenSUSE
+  ansible.builtin.debug:
+    msg: "Podman is installed {{podman_check_OpenSUSE.stdout}}"
+  when:
+    - podman_check_OpenSUSE.rc is defined and podman_check_OpenSUSE.rc == 0
+
+- name: Installing podman for OpenSUSE
+  ansible.builtin.zypper: # handels -y for modules install
+    name: podman
+    state: present
+    refresh: yes # refresh is opensuse equivilant for update_cache
+  when: 
+    - podman_check_OpenSUSE.rc is defined and podman_check_OpenSUSE.rc != 0

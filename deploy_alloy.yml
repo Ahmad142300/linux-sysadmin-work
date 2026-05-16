@@ -1,0 +1,10 @@
+- name: install or check podman installation on Linux servers
+  hosts: managed_nodes
+  gather_facts: true
+  become: true
+
+  roles: 
+  - { role: alloy_install_ubuntu, when: "ansible_facts['distribution'] == 'Ubuntu'" }
+  - { role: alloy_install_suse, when: "ansible_facts['os_family'] == 'Suse'" }
+  # - { role: alloy_install_redhat, when: "ansible_facts['os_family'] == 'RedHat'" }
+  

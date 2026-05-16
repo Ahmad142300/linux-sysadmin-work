@@ -1,0 +1,53 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "chatbot-a8618",
+                    "appId": "1:137140153383:android:9355bad2cad1a2b216f202",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "chatbot-a8618",
+                    "configurations": {
+                        "android": "1:137140153383:android:9355bad2cad1a2b216f202",
+                        "ios": "1:137140153383:ios:29a3676b1587ebec16f202",
+                        "macos": "1:137140153383:ios:29a3676b1587ebec16f202",
+                        "web": "1:137140153383:web:666097df39f8b1c516f202",
+                        "windows": "1:137140153383:web:640b4d01aafd46d116f202"
+                    }
+                }
+            }
+        }
+    },
+    "hosting": {
+        "public": "build/web",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ],
+        "rewrites": [
+            { "source": "**", "destination": "/index.html" }
+        ],
+        "headers": [
+            {
+                "source": "**/*.@(js|css)",
+                "headers": [
+                    { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+                ]
+            },
+            {
+                "source": "index.html",
+                "headers": [
+                    { "key": "Cache-Control", "value": "no-cache" }
+                ]
+            }
+        ]
+    },
+    "emulators": {
+        "hosting": { "port": 5000 }
+    }
+}

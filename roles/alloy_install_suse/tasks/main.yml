@@ -1,0 +1,42 @@
+- name: Download the GPG key and save it to the keyring directory
+  ansible.builtin.get_url:
+    url: https://rpm.grafana.com/gpg.key
+    dest: /tmp/gpg.key
+    mode: '0644'
+
+- name: Import a key from a file
+  ansible.builtin.rpm_key:
+    state: present
+    key: /tmp/gpg.key
+
+- name: Add Grafana repository
+  community.general.zypper_repository:
+    name: grafana
+    description: Grafana Repository
+    repo: 'https://rpm.grafana.com'
+    state: present
+    auto_import_keys: true
+    auto_refresh: yes
+
+- name: Install alloy
+  community.general.zypper:
+    name: alloy
+    state: present
+    update_cache: yes
+
+- name: start alloy service on Linux servers
+  ansible.builtin.systemd:
+    name: alloy
+    state: started
+    enabled: yes
+
+- name: copy config file
+  ansible.builtin.copy:
+    src: config.alloy
+    dest: /etc/alloy/config.alloy
+    mode: '0644'
+
+- name: reload alloy service on Linux servers
+  ansible.builtin.systemd:
+    name: alloy
+    state: reloaded

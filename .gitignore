@@ -1,0 +1,9 @@
+# files
+hosts
+winPass
+leaderToken
+pkg_installs.yaml
+.garbage-but-useful-for-learning
+.env
+# tar balls
+*.tar
