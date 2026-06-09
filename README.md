@@ -214,8 +214,8 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-User=regulu
-Group=regulu
+User=<user>
+Group=<group>
 Type=simple
 ExecStart=/usr/local/bin/node_exporter
 
@@ -259,7 +259,6 @@ sudo systemctl start grafana-server
 sudo systemctl enable grafana-server.service
 ```
 access at http://localhost:3000/
-user and pass : *admin*
 
 # found it unnecessary step but might be useful reference
 
