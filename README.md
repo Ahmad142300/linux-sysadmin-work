@@ -149,7 +149,7 @@ sudo kubectl scale deployment chatbot-frontend --replicas=3
 # 3. Create the Frontend Service (NodePort) to expose it to your browser
 sudo kubectl expose deployment chatbot-frontend --type=NodePort --port=80 --target-port=80 --name=chatbot-frontend-service
 
-# 4. Set the specific NodePort to 30080 (optional, but keeps it consistent with your plan)
+# 4. Set the specific NodePort to 30080 
 sudo kubectl patch svc chatbot-frontend-service -p '{"spec":{"ports":[{"port":80,"nodePort":30080}]}}'
 ```
 ### yml version for LoadBalancer
